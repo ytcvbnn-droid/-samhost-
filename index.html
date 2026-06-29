@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMB Host - استضافة سيرفرات الألعاب المجانية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --dark: #0f0f1a;
+            --darker: #08080f;
+            --card: #16162a;
+            --card-hover: #1e1e3a;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --gradient-1: linear-gradient(135deg, #6366f1, #06b6d4);
+            --gradient-2: linear-gradient(135deg, #f59e0b, #ef4444);
+            --free: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.6); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .animate-up {
+            opacity: 0;
+            animation: slideUp 0.8s ease forwards;
+        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(15, 15, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .logo i {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: var(--gradient-1);
+            color: white;
+            padding: 0.7rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 5% 5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(34, 197, 94, 0.08) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        .hero-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+        }
+
+        .hero-content {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--free);
+            margin-bottom: 2rem;
+            animation: pulse-glow 3s infinite;
+            font-weight: 700;
+        }
+
+        .hero-badge i {
+            color: var(--free);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--gradient-1);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 5s ease infinite;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .floating-cards {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .float-card {
+            position: absolute;
+            background: var(--card);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            animation: float 6s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .float-card i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .float-card:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+        .float-card:nth-child(2) { top: 30%; right: 10%; animation-delay: 1s; }
+        .float-card:nth-child(3) { bottom: 25%; left: 15%; animation-delay: 2s; }
+        .float-card:nth-child(4) { bottom: 20%; right: 12%; animation-delay: 3s; }
+
+        .games-section {
+            padding: 6rem 5%;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h2 .gradient-text {
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            background: var(--card);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .game-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .game-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: white;
+            position: relative;
+        }
+
+        .game-icon::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            background: var(--gradient-1);
+            border-radius: 24px;
+            opacity: 0.3;
+            filter: blur(10px);
+            z-index: -1;
+        }
+
+        .game-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .game-badge {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .features-section {
+            padding: 6rem 5%;
+            background: var(--darker);
+            position: relative;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 2rem;
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .feature-content h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-content p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .pricing-section {
+            padding: 6rem 5%;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        .pricing-card {
+            background: var(--card);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .pricing-card.popular {
+            border: 2px solid var(--free);
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);
+        }
+
+        .pricing-card.popular:hover {
+            transform: scale(1.08) translateY(-10px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            padding: 0.5rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            animation: bounce 2s infinite;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-card .price {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 1rem 0;
+            color: var(--free);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .pricing-card .price .currency {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .pricing-card .price .period {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .free-stamp {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px dashed var(--free);
+            color: var(--free);
+            padding: 0.5rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            animation: pulse-glow 3s infinite;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 2rem 0;
+            text-align: right;
+        }
+
+        .pricing-features li {
+            padding: 0.7rem 0;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-features li i {
+            color: var(--success);
+            font-size: 0.9rem;
+        }
+
+        .pricing-features li.disabled {
+            color: rgba(148, 163, 184, 0.3);
+        }
+
+        .pricing-features li.disabled i {
+            color: var(--danger);
+        }
+
+        .pricing-btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 2px solid var(--free);
+            background: transparent;
+            color: var(--free);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Tajawal', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-btn:hover {
+            background: var(--free);
+            color: white;
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+        }
+
+        .pricing-card.popular .pricing-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: none;
+            color: white;
+        }
+
+        .pricing-card.popular .pricing-btn:hover {
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .status-section {
+            padding: 4rem 5%;
+            background: var(--darker);
+        }
+
+        .status-bar {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse-glow 2s infinite;
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-item span {
+            font-weight: 600;
+        }
+
+        .status-item small {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .free-banner {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 1000px;
+            margin: 0 auto 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .free-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shine 3s infinite;
+        }
+
+        .free-banner h3 {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: var(--free);
+        }
+
+        .free-banner p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .free-banner .free-icon {
+            font-size: 3rem;
+            color: var(--free);
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        .footer {
+            padding: 4rem 5% 2rem;
+            background: var(--darker);
+            border-top: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .footer-links h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-right: 5px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: var(--card);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+            border: none;
+            font-size: 1.2rem;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero-stats {
+                gap: 2rem;
+            }
+
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+
+            .pricing-card.popular:hover {
+                transform: scale(1.03) translateY(-10px);
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .float-card {
+                display: none;
+            }
+
+            .free-banner {
+                padding: 2rem 1rem;
+            }
+        }
+
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles"></canvas>
+
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <i class="fas fa-server"></i>
+            SAMB Host
+        </a>
+        <ul class="nav-links">
+            <li><a href="#home">الرئيسية</a></li>
+            <li><a href="#games">الألعاب</a></li>
+            <li><a href="#features">المميزات</a></li>
+            <li><a href="#pricing">الأسعار</a></li>
+            <li><a href="#status">الحالة</a></li>
+        </ul>
+        <a href="#pricing" class="nav-cta">ابدأ مجاناّ</a>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+
+        <div class="floating-cards">
+            <div class="float-card"><i class="fas fa-bolt"></i> ping 5ms</div>
+            <div class="float-card"><i class="fas fa-shield-alt"></i> DDoS Protection</div>
+            <div class="float-card"><i class="fas fa-clock"></i> 99.9% Uptime</div>
+            <div class="float-card"><i class="fas fa-gift"></i> 100% FREE</div>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-badge animate-up">
+                <i class="fas fa-gift"></i>
+                مجاناّ 100% — بدون رسوم خفية
+            </div>
+
+            <h1 class="animate-up delay-1">
+                استضف سيرفرك بـ <span class="gradient-text">أفضل أداء</span><br>
+                <span style="color: var(--free);">ومجاناّ بالكامل!</span>
+            </h1>
+
+            <p class="animate-up delay-2">
+                سيرفرات قوية، ping منخفض، وحماية DDoS متكاملة — كل هذا مجاناّ! ابدأ سيرفرك في أقل من 60 ثانية بدون أي بطاقة ائتمان.
+            </p>
+
+            <div class="hero-buttons animate-up delay-3">
+                <a href="#pricing" class="btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    ابدأ مجاناّ الآن
+                </a>
+                <a href="#features" class="btn-secondary">
+                    <i class="fas fa-play-circle"></i>
+                    شوف المميزات
+                </a>
+            </div>
+
+            <div class="hero-stats animate-up delay-4">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="15000">0</div>
+                    <div class="stat-label">سيرفر نشط</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="99">0</div>
+                    <div class="stat-label">% Uptime</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="24">0</div>
+                    <div class="stat-label">/7 دعم فني</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="0">0</div>
+                    <div class="stat-label">دولار تكلفة</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="games-section" id="games">
+        <div class="section-header">
+            <h2>ألعابنا <span class="gradient-text">المدعومة</span></h2>
+            <p>اختر لعبتك المفضلة واستضف سيرفرك الخاص — كلها مجاناّ!</p>
+        </div>
+
+        <div class="games-grid">
+            <div class="game-card">
+                <div class="game-icon"><i class="fas fa-cube"></i></div>
+                <h3>Minecraft</h3>
+                <p>سيرفرات Minecraft بإصدارات Java و Bedrock مع دعم المودات والبلجنات</p>
+                <span class="game-badge">مجاناّ</span>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon"><i class="fas fa-car"></i></div>
+                <h3>FiveM / GTA RP</h3>
+                <p>سيرفرات GTA V Roleplay بأداء عالي ودعم كامل للـ scripts والـ resources</p>
+                <span class="game-badge">مجاناّ</span>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon"><i class="fas fa-crosshairs"></i></div>
+                <h3>CS:GO / CS2</h3>
+                <p>سيرفرات Counter-Strike 2 competitive و casual بأقل ping</p>
+                <span class="game-badge">مجاناّ</span>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon"><i class="fas fa-dragon"></i></div>
+                <h3>Rust</h3>
+                <p>سيرفرات Rust survival مع دعم Oxide و uMod وإعدادات مخصصة</p>
+                <span class="game-badge">مجاناّ</span>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon"><i class="fas fa-horse"></i></div>
+                <h3>RedM / RDR2</h3>
+                <p>سيرفرات Red Dead Redemption 2 Roleplay بتجربة immersive</p>
+                <span class="game-badge">مجاناّ</span>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon"><i class="fas fa-gamepad"></i></div>
+                <h3>ARK: Survival</h3>
+                <p>سيرفرات ARK مع دعم المودات والخرائط المخصصة</p>
+                <span class="game-badge">مجاناّ</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section" id="features">
+        <div class="section-header">
+            <h2>لماذا <span class="gradient-text">SAMB Host</span>؟</h2>
+            <p>مميزات تجعلنا الخيار الأمثل — وكلها مجاناّ!</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                <div class="feature-content">
+                    <h3>أداء فائق</h3>
+                    <p>معالجات AMD EPYC الجيل الرابع وذاكرة DDR5 بسرعات تصل إلى 4800MHz</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="feature-content">
+                    <h3>حماية DDoS</h3>
+                    <p>حماية متكاملة ضد هجمات DDoS بسعة تصل إلى 1Tbps — مجاناّ!</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fas fa-globe"></i></div>
+                <div class="feature-content">
+                    <h3>مواقع عالمية</h3>
+                    <p>مراكز بيانات في 15+ موقع حول العالم لأقرب ping</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fas fa-hdd"></i></div>
+                <div class="feature-content">
+                    <h3>SSD NVMe</h3>
+                    <p>تخزين NVMe بسرعات قراءة تصل إلى 7000MB/s</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fas fa-cogs"></i></div>
+                <div class="feature-content">
+                    <h3>لوحة تحكم سهلة</h3>
+                    <p>لوحة تحكم مخصصة مع دعم FTP وقاعدة بيانات MySQL</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                <div class="feature-content">
+                    <h3>دعم فني 24/7</h3>
+                    <p>فريق دعم فني متخصص متواجد على مدار الساعة</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing-section" id="pricing">
+        <div class="free-banner">
+            <div class="free-icon"><i class="fas fa-infinity"></i></div>
+            <h3>مجاناّ للأبد — بدون شروط!</h3>
+            <p>لا بطاقات ائتمان، لا رسوم خفية، لا إعلانات مزعجة. فقط سيرفرات ألعاب مجانية بأفضل أداء. ابدأ الآن واستمتع!</p>
+        </div>
+
+        <div class="section-header">
+            <h2>خططنا <span class="gradient-text">المجانية</span></h2>
+            <p>ثلاث خطط — كلها مجانية 100%. اختر اللي يناسبك!</p>
+        </div>
+
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Starter</h3>
+                <div class="price">
+                    <span class="currency">$</span>0
+                </div>
+                <div class="free-stamp">مجاناّ للأبد</div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> 2 GB RAM</li>
+                    <li><i class="fas fa-check"></i> 1 vCPU Core</li>
+                    <li><i class="fas fa-check"></i> 20 GB SSD NVMe</li>
+                    <li><i class="fas fa-check"></i> حماية DDoS أساسية</li>
+                    <li><i class="fas fa-check"></i> دعم فني عبر التذاكر</li>
+                    <li class="disabled"><i class="fas fa-times"></i> نسخ احتياطي يومي</li>
+                    <li class="disabled"><i class="fas fa-times"></i> IP مخصص</li>
+                </ul>
+                <button class="pricing-btn">احصل عليه مجاناّ</button>
+            </div>
+
+            <div class="pricing-card popular">
+                <div class="popular-badge">الأكثر شعبية</div>
+                <h3>Pro</h3>
+                <div class="price">
+                    <span class="currency">$</span>0
+                </div>
+                <div class="free-stamp">مجاناّ للأبد</div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> 4 GB RAM</li>
+                    <li><i class="fas fa-check"></i> 2 vCPU Cores</li>
+                    <li><i class="fas fa-check"></i> 50 GB SSD NVMe</li>
+                    <li><i class="fas fa-check"></i> حماية DDoS متقدمة</li>
+                    <li><i class="fas fa-check"></i> دعم فني أولوية</li>
+                    <li><i class="fas fa-check"></i> نسخ احتياطي يومي</li>
+                    <li class="disabled"><i class="fas fa-times"></i> IP مخصص</li>
+                </ul>
+                <button class="pricing-btn">احصل عليه مجاناّ</button>
+            </div>
+
+            <div class="pricing-card">
+                <h3>Elite</h3>
+                <div class="price">
+                    <span class="currency">$</span>0
+                </div>
+                <div class="free-stamp">مجاناّ للأبد</div>
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> 8 GB RAM</li>
+                    <li><i class="fas fa-check"></i> 4 vCPU Cores</li>
+                    <li><i class="fas fa-check"></i> 100 GB SSD NVMe</li>
+                    <li><i class="fas fa-check"></i> حماية DDoS Enterprise</li>
+                    <li><i class="fas fa-check"></i> دعم فني VIP 24/7</li>
+                    <li><i class="fas fa-check"></i> نسخ احتياطي يومي</li>
+                    <li><i class="fas fa-check"></i> IP مخصص</li>
+                </ul>
+                <button class="pricing-btn">احصل عليه مجاناّ</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="status-section" id="status">
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot"></div>
+                <div>
+                    <span>جميع الأنظمة تعمل</span><br>
+                    <small>آخر تحديث: منذ دقيقة</small>
+                </div>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-server" style="color: var(--primary);"></i>
+                <div>
+                    <span>15,234 سيرفر نشط</span><br>
+                    <small>+234 هذا الأسبوع</small>
+                </div>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-clock" style="color: var(--accent);"></i>
+                <div>
+                    <span>99.97% Uptime</span><br>
+                    <small>آخر 30 يوم</small>
+                </div>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-users" style="color: var(--secondary);"></i>
+                <div>
+                    <span>45,000+ لاعب</span><br>
+                    <small>متصل الآن</small>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <i class="fas fa-server"></i>
+                    SAMB Host
+                </a>
+                <p>أفضل منصة استضافة سيرفرات الألعاب المجانية. أداء فائق، حماية متكاملة، ودعم فني على مدار الساعة — وكل هذا مجاناّ 100%!</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <h4>الخدمات</h4>
+                <ul>
+                    <li><a href="#">استضافة Minecraft</a></li>
+                    <li><a href="#">استضافة FiveM</a></li>
+                    <li><a href="#">استضافة CS2</a></li>
+                    <li><a href="#">استضافة Rust</a></li>
+                    <li><a href="#">استضافة ARK</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>الشركة</h4>
+                <ul>
+                    <li><a href="#">من نحن</a></li>
+                    <li><a href="#">فريق العمل</a></li>
+                    <li><a href="#">الوظائف</a></li>
+                    <li><a href="#">المدونة</a></li>
+                    <li><a href="#">اتصل بنا</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>الدعم</h4>
+                <ul>
+                    <li><a href="#">مركز المساعدة</a></li>
+                    <li><a href="#">الأسئلة الشائعة</a></li>
+                    <li><a href="#">حالة النظام</a></li>
+                    <li><a href="#">شروط الخدمة</a></li>
+                    <li><a href="#">سياسة الخصوصية</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 SAMB Host. جميع الحقوق محفوظة. صُنع بـ <i class="fas fa-heart" style="color: var(--danger);"></i> للاعبين — مجاناّ للأبد!</p>
+        </div>
+    </footer>
+
+    <button class="scroll-top" id="scrollTop"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 80;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(99, 102, 241, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.strokeStyle = `rgba(99, 102, 241, ${0.1 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const counters = document.querySelectorAll('.stat-number');
+        const speed = 200;
+
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const increment = target / speed;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(animateCounters, 20);
+                } else {
+                    counter.innerText = target;
+                    if (target === 99) counter.innerText = '99.9';
+                }
+            });
+        };
+
+        const observerOptions = {
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelector('.hero-stats').querySelectorAll('.stat-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        const scrollTopBtn = document.getElementById('scrollTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.padding = '0.7rem 5%';
+                navbar.style.background = 'rgba(15, 15, 26, 0.95)';
+            } else {
+                navbar.style.padding = '1rem 5%';
+                navbar.style.background = 'rgba(15, 15, 26, 0.9)';
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+            navLinks.style.position = 'absolute';
+            navLinks.style.top = '100%';
+            navLinks.style.left = '0';
+            navLinks.style.right = '0';
+            navLinks.style.flexDirection = 'column';
+            navLinks.style.background = 'var(--dark)';
+            navLinks.style.padding = '2rem';
+            navLinks.style.gap = '1.5rem';
+            navLinks.style.borderTop = '1px solid rgba(99, 102, 241, 0.2)';
+        });
+
+        document.querySelectorAll('.pricing-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+                setTimeout(() => {
+                    this.innerHTML = 'احصل عليه مجاناّ';
+                    alert('هذه نسخة تجريبية! في الموقع الحقيقي هنا ينتقل لصفحة التسجيل.');
+                }, 1500);
+            });
+        });
+
+        const revealElements = document.querySelectorAll('.game-card, .feature-item, .pricing-card');
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            revealObserver.observe(el);
+        });
+    </script>
+</body>
+</html>
